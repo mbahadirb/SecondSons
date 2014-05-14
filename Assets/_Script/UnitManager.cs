@@ -6,6 +6,11 @@ public class UnitManager : MonoBehaviour {
 
 	#region Turn
 	public bool isUserTurn;
+	public bool isMoving;
+	public bool IsMoving {
+		get{ return isMoving; }
+		set{ isMoving = value; }
+	}
 	#endregion
 
 	#region Textures
@@ -74,6 +79,11 @@ public class UnitManager : MonoBehaviour {
 	#region Prefabs
 	public Transform soldierPrefab;
 	public Transform enemyPrefab;
+	public Transform destinationPrefab;
+	#endregion
+
+	#region Destination
+	private Transform destinationObject;
 	#endregion
 
 	void Start () {
@@ -177,5 +187,17 @@ public class UnitManager : MonoBehaviour {
 		}
 	}
 
+	public void SetDestination ( Vector3 targetPosition ) {
+		if( targetPosition == Vector3.up ){
+			Object.Destroy( destinationObject );
+			return;
+		}
 
+		if( destinationObject ){
+			destinationObject.position = targetPosition;
+		}
+		else {
+			destinationObject = ((Transform)Instantiate( destinationPrefab, targetPosition, Quaternion.identity ));
+		}
+	}
 }

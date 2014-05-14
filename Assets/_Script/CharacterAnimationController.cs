@@ -51,7 +51,7 @@ public class CharacterAnimationController : MonoBehaviour {
 
 	public void UpdateSpeed( float speed ){
 		forwardSpeed = speed;
-		Debug.Log ( "Character speed: " + speed );
+		//Debug.Log ( "Character speed: " + speed );
 		animator.SetFloat( "forwardSpeed", forwardSpeed );
 	}
 }

@@ -7,6 +7,11 @@ using Pathfinding;
 
 public class Soldier : MonoBehaviour {
 
+
+	#region ActionPoint
+	private int actionPoints;
+	#endregion
+
 	#region Animation
 	public CharacterAnimationController animationController;
 	#endregion
@@ -29,6 +34,7 @@ public class Soldier : MonoBehaviour {
 	#region Movement
 	private List<Vector3> path;
 	private int pathIndex;
+	private int maxPathIndex;
 	private Vector3 currentWP;
 	private float nextWPDistanceSqr;
 	
@@ -115,6 +121,7 @@ public class Soldier : MonoBehaviour {
 		#endregion
 		
 		#region Movement
+		maxPathIndex = 10;
 		nextWPDistanceSqr = 3;
 
 		turnSpeed = 3;
@@ -123,6 +130,10 @@ public class Soldier : MonoBehaviour {
 
 		#region Animation
 		animationController = gameObject.GetComponentInChildren<CharacterAnimationController>();
+		#endregion
+
+		#region ActionPoint
+		actionPoints = 2;
 		#endregion
 	}
 	
@@ -178,6 +189,8 @@ public class Soldier : MonoBehaviour {
 
 	void OnGUI () {
 		if( unitManager.ActiveSoldier == this ){
+			GUI.Label( new Rect( soldierID*100, 0, 100, 20 ), "AP: "+actionPoints);
+
 			if( GUI.Button( new Rect( soldierID*100, 20, 100, 100 ), "Soldier "+soldierID ) ){
 				unitManager.SetActiveSoldier( this );
 			}
@@ -220,17 +233,39 @@ public class Soldier : MonoBehaviour {
 	}
 	
 	private void OnPathComplete ( Path p ) {
+		if( unitManager.IsMoving ){
+			return;
+		}
+
+		if( actionPoints <= 0 ){
+			return;
+		}
+
+		if( p.vectorPath.Count > maxPathIndex ){
+			Vector3 newDestination = p.vectorPath[maxPathIndex-1];
+			unitManager.SetDestination( newDestination );
+			//seeker.StartPath( transform.position, newDestination, OnPathComplete );
+			return;
+		}
+		else{
+			//unitManager.SetDestination( Vector3.up );
+		}
 		path = p.vectorPath;
 		pathIndex = 0;
 		//currentWP = path[pathIndex];
+
+		//This starts move animation
 		animationController.UpdateSpeed( 1.0f );
-		
+		unitManager.IsMoving = true;
 	}
 	
 	private void AtTheEndOfPath () {
 		pathIndex = -1;	
+		//This will stop move animation
 		animationController.UpdateSpeed( 0.0f );
 		TakeAction();
+		actionPoints--;
+		unitManager.IsMoving = false;
 	}
 	
 	private void TakeAction () {
